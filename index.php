@@ -12,20 +12,23 @@
           autofocus autocomplete="off"
           placeholder="today is a lovely day"
           v-model="newTodo"
-          @keyup.enter="addTodo">
-      </header>
+          @keyup.enter.prevent="addTodo"
+          @keyup.down.prevent="toFirst">
+      </header
       <section class="main" v-show="todos.length" v-cloak>
         <ul class="todo-list">
-          <li v-for="todo in filteredTodos"
+          <li v-for="(todo,key) in filteredTodos"
             class="todo"
             :key="todo.id">
             <input class="edit" type="text"
               v-model="todo.title"
-              v-todo-focus="todo == editedTodo"
+              v-todo-focus="key === focusKey"
               @blur="doneEdit(todo)"
               @keydown.delete="checkForDelete(todo)"
-              @keyup.enter="doneEdit(todo)"
-              @keyup.esc="cancelEdit(todo)">
+              @keyup.enter.prevent="lineEnter(todo)"
+              @keyup.esc="cancelEdit(todo)"
+              @keyup.up.prevent="moveUp(todo)"
+              @keyup.down.prevent="moveDown(todo)">
           </li>
         </ul>
       </section>
@@ -34,7 +37,7 @@
     </footer>
 
     <!-- scripts -->
-    <script src="js/bootstrap.js"></script>
+    <!--<script src="js/bootstrap.js"></script> -->
     <script src="js/vue.js"></script>
     <script src="js/vue-localstorage.js"></script>
     <script type="text/javascript">
@@ -61,7 +64,8 @@
             todos: todoStorage.fetch(),
             newTodo: '',
             editedTodo: null,
-            visibility: 'all'
+            visibility: 'all',
+            focusKey:-1
           },
 
           // watch todos change for localStorage persistence
@@ -89,15 +93,12 @@
               if (!value) {
                 return
               }
+              this.newTodo = ''
               this.todos.splice(0, 0,{
                 id: todoStorage.uid++,
                 title: value,
                 completed: false
               })
-              this.newTodo = ''
-              Vue.nextTick(function() {
-                this.todos[10].$els.inputElement.focus();
-              });
             },
 
             removeTodo: function (todo) {
@@ -110,33 +111,65 @@
             },
 
             doneEdit: function (todo) {
-              if (!this.editedTodo) {
-                return
-              }
-              this.editedTodo = null
               todo.title = todo.title.trim()
-              if (!todo.title) {
-                var i = this.todos.indexOf(todo);
-                this.removeTodo(todo)
-              }
+            },
+
+            lineEnter: function (todo) {
+              todo.title = todo.title.trim()
+              this.todos.splice(this.todos.indexOf(todo)+1, 0, {
+                id: todoStorage.uid++,
+                title: '',
+                completed: false
+              })
             },
 
             checkForDelete: function (todo) {
               todo.title = todo.title.trim()
               if (!todo.title) {
+                var i = this.todos.indexOf(todo)
+                if (i > 0) this.focusKey = i-1; //stay in place
                 this.removeTodo(todo)
+                Vue.nextTick(function(){
+                    this.focusKey = -1;
+                });
               }
             },
 
-            cancelEdit: function (todo) {
-              this.editedTodo = null
-              todo.title = this.beforeEditCache
+            moveUp: function(todo) {
+                var i = this.todos.indexOf(todo)
+                this.focusKey = i-1;
+                if (this.focusKey < 0)
+
+                Vue.nextTick(function(){
+                    this.focusKey = -1
+                });
             },
 
-            removeCompleted: function () {
-              this.todos = filters.active(this.todos)
+            moveDown: function(todo) {
+                var i = this.todos.indexOf(todo)
+                if (i != this.todos.length-1) this.focusKey = i+1
+                Vue.nextTick(function(){
+                    this.focusKey = -1
+                });
+            },
+
+            toFirst: function() {
+                this.focusKey = 0
+                Vue.nextTick(function(){
+                    this.focusKey = -1
+                });
             }
+
           },
+
+          // a custom directive to wait for the DOM to be updated
+          // before focusing on the input field.
+          // http://vuejs.org/guide/custom-directive.html
+          directives: {
+            'todo-focus': function (el, binding) {
+              if (binding.value) el.focus()
+            }
+          }
         });
 
         app.$mount('.todoapp')
