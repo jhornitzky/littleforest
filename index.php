@@ -8,7 +8,7 @@
     <section class="todoapp">
       <header class="header">
         <h1>littleforest</h1>
-        <input class="new-todo"
+        <input ref="newTodo" class="new-todo"
           autofocus autocomplete="off"
           placeholder="today is a lovely day"
           v-model="newTodo"
@@ -19,13 +19,14 @@
         <ul class="todo-list">
           <li v-for="(todo,key) in filteredTodos"
             class="todo"
+            :index="key"
             :key="todo.id">
             <input class="edit" type="text"
               v-model="todo.title"
               v-todo-focus="key === focusKey"
               @blur="doneEdit(todo)"
               @keydown.delete="checkForDelete(todo)"
-              @keyup.enter.prevent="lineEnter(todo)"
+              @keydown.enter.prevent="lineEnter(todo)"
               @keyup.esc="cancelEdit(todo)"
               @keyup.up.prevent="moveUp(todo)"
               @keyup.down.prevent="moveDown(todo)">
@@ -37,7 +38,8 @@
     </footer>
 
     <!-- scripts -->
-    <!--<script src="js/bootstrap.js"></script> -->
+    <script src="js/jquery.js"></script>
+    <!--<script src="js/bootstrap.js"></script>-->
     <script src="js/vue.js"></script>
     <script src="js/vue-localstorage.js"></script>
     <script type="text/javascript">
@@ -86,8 +88,17 @@
             },
           },
 
-          // note there's no DOM manipulation here at all.
           methods: {
+            focus : function(i) {
+                $(app.$el).find('[index='+i+'] input').focus() //sorry have to do some dirty jquery to make this work
+            },
+
+            focusNextTick : function(i) {
+                Vue.nextTick(function(){
+                    $(app.$el).find('[index='+i+'] input').focus()
+                })
+            },
+
             addTodo: function () {
               var value = this.newTodo && this.newTodo.trim()
               if (!value) {
@@ -99,6 +110,7 @@
                 title: value,
                 completed: false
               })
+              this.focusNextTick(0)
             },
 
             removeTodo: function (todo) {
@@ -121,43 +133,32 @@
                 title: '',
                 completed: false
               })
+              this.focusNextTick(this.todos.indexOf(todo)+1)
             },
 
             checkForDelete: function (todo) {
               todo.title = todo.title.trim()
               if (!todo.title) {
                 var i = this.todos.indexOf(todo)
-                if (i > 0) this.focusKey = i-1; //stay in place
                 this.removeTodo(todo)
-                Vue.nextTick(function(){
-                    this.focusKey = -1;
-                });
+                if (i > 0 && i < this.todos.length-1) this.focusNextTick(i)
+                else if (i > 0 && i >= this.todos.length-1) this.focusNextTick(i-1)
               }
             },
 
             moveUp: function(todo) {
                 var i = this.todos.indexOf(todo)
-                this.focusKey = i-1;
-                if (this.focusKey < 0)
-
-                Vue.nextTick(function(){
-                    this.focusKey = -1
-                });
+                if (i-1 < 0) this.$refs.newTodo.focus()
+                else this.focus(i-1)
             },
 
             moveDown: function(todo) {
                 var i = this.todos.indexOf(todo)
-                if (i != this.todos.length-1) this.focusKey = i+1
-                Vue.nextTick(function(){
-                    this.focusKey = -1
-                });
+                if (i != this.todos.length-1) this.focus(i+1)
             },
 
             toFirst: function() {
-                this.focusKey = 0
-                Vue.nextTick(function(){
-                    this.focusKey = -1
-                });
+                this.focus(0);
             }
 
           },
