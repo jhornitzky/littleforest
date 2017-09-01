@@ -21,6 +21,14 @@ body {
 	-moz-text-rendering: optimizeLegibility;
 	text-rendering: optimizeLegibility;
 }
+.holder {
+	background-color:#DDDDDD;
+	min-height:100px !important;
+	line-height: 100px;
+	width:100%;
+	display: block;
+	margin-bottom:20px;
+}
 .square {
 	background-color:#FFFFFF;
 	min-height:100px !important;
