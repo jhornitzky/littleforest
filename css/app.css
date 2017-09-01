@@ -1,10 +1,7 @@
 body {
-	font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	line-height: 1.4em;
 	background: #f5f5f5;
 	color: #4d4d4d;
-	min-width: 230px;
-	max-width: 550px;
 	margin: 0 auto;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
@@ -13,70 +10,21 @@ body {
 .hidden {
 	display: none;
 }
-
-.todoapp {
-	position: relative;
-}
-
-.todoapp input::-webkit-input-placeholder {
-	font-style: italic;
-	font-weight: 300;
-	color: #AAA;
-}
-
-.todoapp input::-moz-placeholder {
-	font-style: italic;
-	font-weight: 300;
-	color: #AAA;
-}
-
-.todoapp input::input-placeholder {
-	font-style: italic;
-	font-weight: 300;
-	color: #e6e6e6;
-}
-
-.todoapp h1 {
+.app h1 {
 	width: 100%;
     padding:6px;
 	font-size: 50px;
 	font-weight: 100;
 	text-align: left;
-	color: rgba(175, 47, 47, 0.15);
+	color: #83bc25;
 	-webkit-text-rendering: optimizeLegibility;
 	-moz-text-rendering: optimizeLegibility;
 	text-rendering: optimizeLegibility;
 }
-
-.new-todo,
-.edit {
-	position: relative;
-	margin: 0;
-	width: 100%;
-	font-size: 24px;
-	font-family: inherit;
-	font-weight: inherit;
-	line-height: 1.4em;
-	border: 0;
-    border-bottom:1px solid #AAA;
-	color: inherit;
-	padding: 6px;
-	background-color:transparent;
-	box-sizing: border-box;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
-.todo-list {
-	margin: 0;
-	padding: 0;
-    padding-top:5px;
-	list-style: none;
-}
-
-.todo-list li {
-	position: relative;
-	font-size: 24px;
-    padding-top:5px;
-    padding-bottom:5px;
+.square {
+	background-color:#FFFFFF;
+	min-height:100px !important;
+	line-height: 100px;
+	width:100%;
+	text-align:center;
 }
